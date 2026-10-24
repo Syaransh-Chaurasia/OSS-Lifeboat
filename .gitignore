@@ -218,3 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+oss_lifeboat.db
+oss_lifeboat.db-shm
+oss_lifeboat.db-wal

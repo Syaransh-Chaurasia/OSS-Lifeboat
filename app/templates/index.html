@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#071326">
+    <meta name="description" content="Explore GitHub repositories, analyse open issues, compare projects and track saved repository snapshots with OSS Lifeboat.">
+    <title>OSS Lifeboat — Open-source intelligence</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="topbar">
+        <a class="brand" href="#home" aria-label="OSS Lifeboat home">
+            <span class="brand-mark">O<span>.</span></span>
+            <span>OSS <strong>Lifeboat</strong></span>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+            <button class="nav-link active" type="button" data-view="analyse">Analyse</button>
+            <button class="nav-link" type="button" data-view="history">
+                History <span id="history-count" class="nav-count">0</span>
+            </button>
+            <button class="nav-link" type="button" data-view="compare">Compare</button>
+        </nav>
+
+        <div class="topbar-right">
+            <span class="live-indicator"></span>
+            <span>Open-source intelligence</span>
+            <span class="version-tag">HACK DAY EDITION</span>
+        </div>
+    </header>
+
+    <main id="home" class="page-shell">
+        <section id="analyse-view" class="app-view active">
+            <section class="hero">
+                <div class="hero-copy-block">
+                    <p class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT CONTRIBUTION STARTS HERE</p>
+                    <h1>Find your way into<br><span class="gradient-text">open source.</span></h1>
+                    <p class="hero-copy">
+                        Understand a project before you dive in. Explore repository signals,
+                        discover issues worth investigating, and get an AI-assisted starting plan.
+                    </p>
+                    <div class="hero-points">
+                        <span><span class="point-check">✓</span> Live GitHub data</span>
+                        <span><span class="point-check">✓</span> Explainable issue ranking</span>
+                        <span><span class="point-check">✓</span> Gemma AI briefing</span>
+                    </div>
+                </div>
+
+                <div class="search-panel">
+                    <label for="repo-url">Analyse a GitHub repository</label>
+                    <form id="analyze-form">
+                        <div class="search-row">
+                            <span class="github-symbol" aria-hidden="true">⌘</span>
+                            <input
+                                id="repo-url"
+                                name="repo-url"
+                                type="url"
+                                placeholder="https://github.com/owner/repository"
+                                value=""
+                                required
+                                autocomplete="url"
+                            >
+                            <button id="analyze-button" type="submit">
+                                <span id="button-label">Analyse</span>
+                                <span aria-hidden="true">↗</span>
+                            </button>
+                        </div>
+                    </form>
+                    <p class="input-hint">Public repositories · No repository changes are made</p>
+                </div>
+                <p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+            </section>
+
+            <section id="results" class="results" hidden>
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">REPOSITORY INTELLIGENCE</p>
+                        <h2 id="repo-name">Repository overview</h2>
+                        <p id="repo-description" class="muted"></p>
+                    </div>
+                    <div class="heading-actions">
+                        <button id="save-analysis-button" class="outline-button" type="button">
+                            <span aria-hidden="true">＋</span> Save snapshot
+                        </button>
+                        <a id="repo-link" class="outline-link" href="#" target="_blank" rel="noopener noreferrer">
+                            View repository <span aria-hidden="true">↗</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="stats-grid" class="stats-grid"></div>
+
+                <section class="analysis-overview panel">
+                    <div class="analysis-overview-heading">
+                        <div>
+                            <p class="eyebrow">ANALYSIS SNAPSHOT</p>
+                            <h3>Signals at a glance</h3>
+                        </div>
+                        <span class="mini-badge">Evidence-led</span>
+                    </div>
+                    <div class="analysis-overview-grid">
+                        <article class="analysis-overview-item">
+                            <span class="analysis-overview-icon cyan">◷</span>
+                            <div>
+                                <strong>Repository activity</strong>
+                                <p id="analysis-freshness">Checking latest repository update…</p>
+                            </div>
+                        </article>
+                        <article class="analysis-overview-item">
+                            <span class="analysis-overview-icon purple">▥</span>
+                            <div>
+                                <strong>Evidence coverage</strong>
+                                <p id="analysis-coverage">Checking available GitHub evidence…</p>
+                            </div>
+                        </article>
+                        <article class="analysis-overview-item">
+                            <span class="analysis-overview-icon green">✦</span>
+                            <div>
+                                <strong>Contribution signal</strong>
+                                <p id="analysis-signal">Calculating beginner-friendly signals…</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <div class="analytics-grid">
+                    <section class="panel analytics-panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon cyan">▥</div>
+                            <div>
+                                <h3>Issue landscape</h3>
+                                <p class="muted">A breakdown of the issues retrieved</p>
+                            </div>
+                        </div>
+                        <div class="issue-summary">
+                            <div>
+                                <span class="summary-number" id="total-analysed">0</span>
+                                <span class="summary-label">Issues analysed</span>
+                            </div>
+                            <div>
+                                <span class="summary-number" id="labelled-count">0</span>
+                                <span class="summary-label">With labels</span>
+                            </div>
+                            <div>
+                                <span class="summary-number" id="beginner-count">0</span>
+                                <span class="summary-label">Beginner signals</span>
+                            </div>
+                        </div>
+                        <div class="chart-title-row">
+                            <span>Most common labels</span>
+                            <span class="mini-badge">Retrieved sample</span>
+                        </div>
+                        <div id="label-chart" class="bar-chart"></div>
+                        <p id="label-empty" class="empty-chart" hidden>No labels were available in the retrieved issues.</p>
+                    </section>
+
+                    <section class="panel analytics-panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon purple">◉</div>
+                            <div>
+                                <h3>Priority distribution</h3>
+                                <p class="muted">Based on transparent ranking rules</p>
+                            </div>
+                        </div>
+                        <div class="priority-chart-wrap">
+                            <div id="priority-donut" class="donut-chart" role="img" aria-label="Issue priority distribution">
+                                <div class="donut-hole">
+                                    <strong id="donut-total">0</strong>
+                                    <span>issues</span>
+                                </div>
+                            </div>
+                            <div id="priority-legend" class="priority-legend"></div>
+                        </div>
+                        <p class="chart-note">Scores are prioritisation hints, not verified difficulty estimates.</p>
+                    </section>
+                </div>
+
+                <div class="analytics-grid visual-analytics">
+                    <section class="panel analytics-panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon cyan">▦</div>
+                            <div>
+                                <h3>Score distribution</h3>
+                                <p class="muted">How the retrieved issues are scored</p>
+                            </div>
+                        </div>
+                        <div id="score-histogram" class="svg-chart" role="img" aria-label="Issue score distribution"></div>
+                        <p id="score-empty" class="empty-chart" hidden>No issue scores were available to plot.</p>
+                    </section>
+
+                    <section class="panel analytics-panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon purple">◎</div>
+                            <div>
+                                <h3>Contribution mix</h3>
+                                <p class="muted">Beginner signals versus remaining issues</p>
+                            </div>
+                        </div>
+                        <div id="readiness-chart" class="svg-chart" role="img" aria-label="Contribution mix"></div>
+                        <p id="readiness-empty" class="empty-chart" hidden>No issue sample was available for this chart.</p>
+                    </section>
+                </div>
+
+                <div class="content-grid">
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon cyan">⌁</div>
+                            <div>
+                                <h3>Project signals</h3>
+                                <p class="muted">Evidence available from GitHub</p>
+                            </div>
+                        </div>
+                        <div id="signals-list" class="signals-list"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon purple">◎</div>
+                            <div>
+                                <h3>Issues to explore</h3>
+                                <p class="muted">Ranked by transparent heuristics</p>
+                            </div>
+                        </div>
+
+                        <div class="issue-controls">
+                            <label class="sr-only" for="issue-search">Search issues</label>
+                            <input id="issue-search" type="search" placeholder="Search issue titles…">
+                            <label class="sr-only" for="issue-sort">Sort issues</label>
+                            <select id="issue-sort">
+                                <option value="score">Highest score</option>
+                                <option value="title">Title A–Z</option>
+                            </select>
+                        </div>
+
+                        <p class="disclaimer">
+                            A label can be misleading or outdated. Always inspect the issue and the
+                            project's contribution guidelines before choosing a task.
+                        </p>
+                        <div id="issues-list" class="issues-list"></div>
+                        <div class="issue-list-footer">
+                            <p id="issue-count-note" class="muted issue-count-note"></p>
+                            <button id="issue-scroll-button" class="scroll-button" type="button">
+                                Scroll issues <span aria-hidden="true">↓</span>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="panel briefing-panel">
+                    <div class="briefing-top">
+                        <div class="panel-heading">
+                            <div class="panel-icon purple">✳</div>
+                            <div>
+                                <p class="eyebrow">AI-ASSISTED PROJECT GUIDE</p>
+                                <h3>Know before you contribute</h3>
+                                <p class="muted">Evidence-led suggestions for your next step</p>
+                            </div>
+                        </div>
+                        <span class="model-label"><span class="live-indicator"></span> Gemma 4</span>
+                    </div>
+                    <div id="briefing" class="briefing-content"></div>
+                    <div class="ai-footnote">
+                        <span aria-hidden="true">ⓘ</span>
+                        AI output can be incomplete or incorrect. Verify project facts and recommendations
+                        against the original GitHub pages.
+                    </div>
+                </section>
+
+                <footer class="results-footer">
+                    <span>OSS Lifeboat <span class="footer-dot">·</span> Built for contributors</span>
+                    <span>Analytics describe the data retrieved for this analysis.</span>
+                </footer>
+            </section>
+        </section>
+
+        <section id="history-view" class="app-view" hidden>
+            <div class="page-heading">
+                <p class="eyebrow">YOUR REPOSITORY WORKSPACE</p>
+                <h1>Analysis <span class="gradient-text">history.</span></h1>
+                <p class="hero-copy">
+                    One snapshot is kept per repository. Re-analysing a project updates
+                    that entry instead of adding a duplicate.
+                </p>
+            </div>
+
+            <section class="panel history-toolbar">
+                <div>
+                    <h3>Saved repositories</h3>
+                    <p id="history-description" class="muted">No analyses saved yet.</p>
+                </div>
+                <div class="heading-actions">
+                    <button id="compare-selected-button" class="primary-button" type="button">
+                        Compare selected <span aria-hidden="true">→</span>
+                    </button>
+                    <button id="clear-history-button" class="outline-button" type="button">
+                        Clear history
+                    </button>
+                </div>
+            </section>
+
+            <div id="history-list" class="history-list"></div>
+
+            <div id="history-empty" class="panel empty-state">
+                <div class="empty-state-icon">◷</div>
+                <h3>Your history starts here</h3>
+                <p class="muted">
+                    Analyse a repository to save one snapshot you can reopen or compare later.
+                </p>
+                <button class="primary-button" type="button" data-view="analyse">
+                    Analyse a repository <span aria-hidden="true">→</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="compare-view" class="app-view" hidden>
+            <div class="page-heading">
+                <p class="eyebrow">SIDE-BY-SIDE INTELLIGENCE</p>
+                <h1>Compare <span class="gradient-text">projects.</span></h1>
+                <p class="hero-copy">
+                    Compare saved snapshots using their recorded GitHub metrics and issue evidence.
+                    Differences reflect the time each snapshot was taken.
+                </p>
+            </div>
+
+            <section class="panel compare-selector">
+                <div class="panel-heading">
+                    <div class="panel-icon cyan">⇄</div>
+                    <div>
+                        <h3>Choose two snapshots</h3>
+                        <p class="muted">Select two saved analyses to create a comparison.</p>
+                    </div>
+                </div>
+                <div class="compare-select-grid">
+                    <div>
+                        <label for="compare-first">First repository</label>
+                        <select id="compare-first">
+                            <option value="">Choose a saved snapshot</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="compare-second">Second repository</label>
+                        <select id="compare-second">
+                            <option value="">Choose a saved snapshot</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="compare-actions">
+                    <button id="run-compare-button" class="primary-button" type="button">
+                        Compare repositories <span aria-hidden="true">→</span>
+                    </button>
+                    <p id="compare-status" class="muted" role="status" aria-live="polite"></p>
+                </div>
+            </section>
+
+            <section id="comparison-results" class="comparison-results" hidden>
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">SNAPSHOT COMPARISON</p>
+                        <h2>Metrics at a glance</h2>
+                        <p class="muted">Recorded values from the two selected analyses.</p>
+                    </div>
+                </div>
+
+                <div id="comparison-summary" class="comparison-summary"></div>
+
+                <div class="analytics-grid comparison-charts">
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon cyan">▥</div>
+                            <div>
+                                <h3>Repository metrics</h3>
+                                <p class="muted">Stars, forks and open issues</p>
+                            </div>
+                        </div>
+                        <div id="comparison-metrics-chart" class="comparison-bar-chart"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon purple">◉</div>
+                            <div>
+                                <h3>Issue signals</h3>
+                                <p class="muted">Compare the retrieved issue samples</p>
+                            </div>
+                        </div>
+                        <div id="comparison-issues-chart" class="comparison-bar-chart"></div>
+                    </section>
+                </div>
+
+                <div class="analytics-grid comparison-charts">
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon cyan">◈</div>
+                            <div>
+                                <h3>Profile radar</h3>
+                                <p class="muted">Normalised snapshot profile</p>
+                            </div>
+                        </div>
+                        <div id="comparison-radar" class="svg-chart" role="img" aria-label="Repository comparison radar"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div class="panel-icon purple">◉</div>
+                            <div>
+                                <h3>Priority mix</h3>
+                                <p class="muted">How each snapshot ranks its issues</p>
+                            </div>
+                        </div>
+                        <div id="comparison-priority-charts" class="dual-donut-row"></div>
+                    </section>
+                </div>
+
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div class="panel-icon purple">✳</div>
+                        <div>
+                            <h3>Gemma 4 comparison</h3>
+                            <p class="muted">Evidence-based trade-offs and possible next steps</p>
+                        </div>
+                    </div>
+                    <div id="comparison-ai" class="briefing-content">
+                        <p class="muted">Run a comparison to request an AI assessment.</p>
+                    </div>
+                    <div class="ai-footnote">
+                        The AI comparison should use only the saved snapshots. Missing evidence is not
+                        proof that a project is inactive or less suitable.
+                    </div>
+                </section>
+            </section>
+
+            <div id="comparison-empty" class="panel empty-state">
+                <div class="empty-state-icon">⇄</div>
+                <h3>Two projects. One clearer picture.</h3>
+                <p class="muted">
+                    Save at least two repository analyses, then select them above to compare
+                    their metrics and issue signals.
+                </p>
+                <button class="primary-button" type="button" data-view="history">
+                    Open history <span aria-hidden="true">→</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <a class="brand footer-brand" href="#home" data-view="analyse">
+            <span class="brand-mark">O<span>.</span></span>
+            <span>OSS <strong>Lifeboat</strong></span>
+        </a>
+        <span>Make your first contribution count.</span>
+        <span class="footer-credit">Built with Python, FastAPI and Gemma 4</span>
+    </footer>
+</body>
+</html>

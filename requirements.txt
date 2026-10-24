@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+httpx
+python-dotenv
+google-genai
+pytest
+protobuf>=5.26.1,<6
