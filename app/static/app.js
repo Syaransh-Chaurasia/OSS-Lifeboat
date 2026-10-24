@@ -1531,24 +1531,24 @@ function snapshotIssueCounts(snapshot) {
 function renderHealthMeter(container, score, labelText) {
     const wrapper = document.createElement("div");
     wrapper.className = "health-meter-wrapper";
-    
+
     const label = document.createElement("div");
     label.textContent = labelText;
     label.className = "health-meter-label";
-    
+
     const track = document.createElement("div");
     track.className = "health-meter-track";
-    
+
     const fill = document.createElement("div");
     fill.className = "health-meter-fill";
-    
+
     const numericScore = Math.max(0, Math.min(100, Number(score) || 0));
     fill.style.width = `${numericScore}%`;
-    
+
     if (numericScore > 75) fill.style.backgroundColor = "#5ce1bb";
     else if (numericScore > 40) fill.style.backgroundColor = "#ffb86c";
     else fill.style.backgroundColor = "#ff5555";
-    
+
     track.appendChild(fill);
     wrapper.appendChild(label);
     wrapper.appendChild(track);
@@ -1621,7 +1621,7 @@ async function runComparison() {
 
         const scoreA = countsA.analysed > 0 ? Math.round((countsA.beginner / countsA.analysed) * 100) : 0;
         const scoreB = countsB.analysed > 0 ? Math.round((countsB.beginner / countsB.analysed) * 100) : 0;
-        
+
         renderHealthMeter(issueChart, scoreA, `Beginner ratio (${a.name})`);
         renderHealthMeter(issueChart, scoreB, `Beginner ratio (${b.name})`);
 

@@ -74,7 +74,7 @@ not facts about difficulty. Keep the response under 250 words.
         )
         return response.text or "Gemini returned an empty briefing."
 
-    
+
     except Exception as exc:
         print(f"Gemini request failed: {type(exc).__name__}: {exc}")
         return (
